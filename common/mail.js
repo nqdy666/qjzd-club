@@ -3,7 +3,7 @@ var config = require('../config');
 var util = require('util');
 
 var transport = mailer.createTransport('SMTP', config.mail_opts);
-var SITE_ROOT_URL = 'http://' + config.host;
+var SITE_ROOT_URL = 'http://' + config.host + ":" + config.port;
 
 /**
  * Send an email
