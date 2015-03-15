@@ -1,12 +1,12 @@
 Qjzdclub
 =
 
-[![build status][travis-image]][travis-url]
-[![Coverage Status](https://img.shields.io/coveralls/cnodejs/nodeclub.svg?style=flat-square)]
-[![David deps][david-image]][david-url]
-[![node version][node-image]][node-url]
+![build status][travis-image]
+![Coverage Status](https://img.shields.io/coveralls/cnodejs/nodeclub.svg?style=flat-square)
+![David deps][david-image]
+![node version][node-image]
 
-[![Gitter](https://badges.gitter.im/Join Chat.svg)]
+![Gitter](https://badges.gitter.im/Join Chat.svg)
 
 [travis-image]: https://img.shields.io/travis/cnodejs/nodeclub.svg?style=flat-square
 [david-image]: https://img.shields.io/david/cnodejs/nodeclub.svg?style=flat-square
