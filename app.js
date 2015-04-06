@@ -81,10 +81,10 @@ app.use(session({
   secret: config.session_secret,
   store: new RedisStore({
     port: config.redis_port,
-    host: config.redis_host,
+    host: config.redis_host
   }),
   resave: true,
-  saveUninitialized: true,
+  saveUninitialized: true
 }));
 
 app.use(passport.initialize());
@@ -124,13 +124,13 @@ app.use(function (req, res, next) {
 });
 
 // github oauth
-passport.serializeUser(function (user, done) {
-  done(null, user);
-});
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-passport.use(new GitHubStrategy(config.GITHUB_OAUTH, githubStrategyMiddleware));
+//passport.serializeUser(function (user, done) {
+//  done(null, user);
+//});
+//passport.deserializeUser(function (user, done) {
+//  done(null, user);
+//});
+//passport.use(new GitHubStrategy(config.GITHUB_OAUTH, githubStrategyMiddleware));
 
 app.use(busboy({
   limits: {
