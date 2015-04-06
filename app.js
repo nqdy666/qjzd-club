@@ -124,13 +124,13 @@ app.use(function (req, res, next) {
 });
 
 // github oauth
-//passport.serializeUser(function (user, done) {
-//  done(null, user);
-//});
-//passport.deserializeUser(function (user, done) {
-//  done(null, user);
-//});
-//passport.use(new GitHubStrategy(config.GITHUB_OAUTH, githubStrategyMiddleware));
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+passport.use(new GitHubStrategy(config.GITHUB_OAUTH, githubStrategyMiddleware));
 
 app.use(busboy({
   limits: {
