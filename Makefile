@@ -41,9 +41,12 @@ build:
 	@./node_modules/loader/bin/build views .
 
 start: install build
-	@nohup ./node_modules/.bin/pm2 start app.js -i max --name "cnode" --max-memory-restart 400M >> cnode.log 2>&1 &
+	@nohup ./node_modules/.bin/pm2 start app.js -i max  --max-memory-restart 400M >> qjzd-club.log 2>&1 &
 
 restart: install build
-	@nohup ./node_modules/.bin/pm2 restart "cnode" >> cnode.log 2>&1 &
+	@nohup ./node_modules/.bin/pm2 restart app >> qjzd-club.log 2>&1 &
+
+stop: install build
+	@nohup ./node_modules/.bin/pm2 stop app >> qjzd-club.log 2>&1 &
 
 .PHONY: install test cov test-cov build start restart
