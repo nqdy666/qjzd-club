@@ -23,13 +23,14 @@ Qjzdclub
 *不保证 Windows 系统的兼容性*
 
 ```
-1. install `node.js` `mongodb`
-2. run mongod
+1. 安装 `node.js[必须]` `mongodb[必须]` `redis[必须]`
+2. 启动 mongodb 和 redis
 3. `$ make install` 安装 Nodeclub 的依赖包
-4. `$ make test` 确保各项服务都正常
-5. `$ node app.js`
-6. visit `localhost:3000`
-7. done!
+4. `cp config.default.js config.js` 请根据需要修改配置文件
+5. `$ make test` 确保各项服务都正常
+6. `$ node app.js`
+7. visit `localhost:3000`
+8. done!
 ```
 
 ## 其他

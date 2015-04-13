@@ -110,5 +110,5 @@ var makeGravatar = function (email) {
 exports.makeGravatar = makeGravatar;
 
 exports.getGravatar = function (user) {
-  return user.avatar || makeGravatar(user);
+  return user.avatar || makeGravatar(user.email);
 };
