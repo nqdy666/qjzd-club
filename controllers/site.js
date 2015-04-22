@@ -132,7 +132,7 @@ exports.sitemap = function (req, res, next) {
           return next(err);
         }
         topics.forEach(function (topic) {
-          urlset.ele('url').ele('loc', 'http://cnodejs.org/topic/' + topic._id);
+          urlset.ele('url').ele('loc', 'http://' + config.host + '/topic/' + topic._id);
         });
 
         var sitemapData = urlset.end();
