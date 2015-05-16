@@ -46,7 +46,7 @@ start: install build
 restart: install build
 	@nohup ./node_modules/.bin/pm2 restart app >> qjzd-club.log 2>&1 &
 
-stop: install build
+stop:
 	@nohup ./node_modules/.bin/pm2 stop app >> qjzd-club.log 2>&1 &
 
 .PHONY: install test cov test-cov build start restart
