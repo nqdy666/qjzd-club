@@ -16,7 +16,8 @@ exports.upload = function (file, options, callback) {
 
   file.on('end', function () {
     callback(null, {
-      url: fileUrl
+      url: fileUrl,
+      key: newFilename
     });
   });
 

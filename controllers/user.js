@@ -14,6 +14,7 @@ var EventProxy = require('eventproxy');
 var validator = require('validator');
 var utility = require('utility');
 var _ = require('lodash');
+var store = require('../common/store');
 
 exports.index = function (req, res, next) {
   var user_name = req.params.name;
@@ -108,6 +109,7 @@ exports.setting = function (req, res, next) {
       signature: data.signature,
       weibo: data.weibo,
       accessToken: data.accessToken,
+      avatar_url: data.avatar_url
     };
     if (isSuccess) {
       data2.success = msg;
@@ -163,12 +165,55 @@ exports.setting = function (req, res, next) {
               return next(err);
             }
             return showMessage('密码已被修改。', user, true);
-
           });
         }));
       }));
     }));
   }
+};
+
+exports.cropPortrait = function(req, res, next) {
+  var ep = new EventProxy();
+  ep.fail(next);
+
+  var referer = req.get('referer');
+
+  var picUrl = validator.trim(req.body.picUrl);
+  var coord_w = validator.trim(req.body.coordW);
+  var coord_h = validator.trim(req.body.coordH);
+  var coord_x = validator.trim(req.body.coordX);
+  var coord_y = validator.trim(req.body.coordY);
+
+  if (!_.isNumber(utility.toSafeNumber(coord_w)) || !_.isNumber(utility.toSafeNumber(coord_h))
+        || !_.isNumber(utility.toSafeNumber(coord_x)) || !_.isNumber(utility.toSafeNumber(coord_y))) {
+    res.render('notify/notify', {success: "入参有误, 剪裁的坐标值以及宽高需要是数字类型", referer: referer});
+    return;
+  }
+
+  if (picUrl.indexOf("qiniudn.com") === -1) {
+    res.render('notify/notify', {success: "抱歉, 暂不支持非七牛的头像修改", referer: referer});
+    return;
+  }
+
+  //picUrl http://qjzd.qiniudn.com/FhdZ_8gdoQdDEBD8bGyWF8lJi9rd?crop, 得到FhdZ_8gdoQdDEBD8bGyWF8lJi9rd
+  var key = picUrl.replace("http://qjzd.qiniudn.com/", "");
+  var index = key.indexOf("?");
+  if (index !== -1) {
+    key = key.substring(0, key.indexOf("?"));
+  }
+  var value = "!" + coord_w + "x" + coord_h + "a" + coord_x + "a" + coord_y;
+  var avatarUrl = store.imageMogr(key, {crop: value});
+
+  User.getUserById(req.session.user._id, ep.done(function (user) {
+    user.avatar = avatarUrl;
+    user.save(function (err) {
+      if (err) {
+        return next(err);
+      }
+      req.session.user = user.toObject({virtual: true});
+      res.render('notify/notify', {success: "头像已修改, 刷新页面后, 就可以看到新头像哦", referer: referer});
+    });
+  }));
 };
 
 exports.toggle_star = function (req, res, next) {

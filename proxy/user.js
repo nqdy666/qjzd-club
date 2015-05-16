@@ -104,11 +104,11 @@ exports.newAndSave = function (name, loginname, pass, email, avatar_url, active,
   user.save(callback);
 };
 
-var makeGravatar = function (email) {
-  return 'http://www.gravatar.com/avatar/' + utility.md5(email.toLowerCase()) + '?size=48';
+var makeGravatar = function () {
+  return 'http://qjzd.qiniudn.com/portrait_' + Math.round(Math.random() * 10);
 };
 exports.makeGravatar = makeGravatar;
 
 exports.getGravatar = function (user) {
-  return user.avatar || makeGravatar(user.email);
+  return user.avatar || makeGravatar();
 };

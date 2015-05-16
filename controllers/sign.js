@@ -62,7 +62,7 @@ exports.signup = function (req, res, next) {
 
     tools.bhash(pass, ep.done(function (passhash) {
       // create gravatar
-      var avatarUrl = User.makeGravatar(email);
+      var avatarUrl = User.makeGravatar();
       User.newAndSave(loginname, loginname, passhash, email, avatarUrl, false, function (err) {
         if (err) {
           return next(err);

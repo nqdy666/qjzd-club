@@ -432,6 +432,7 @@ exports.upload = function (req, res, next) {
         res.json({
           success: true,
           url: result.url,
+          key: result.key
         });
       });
     });

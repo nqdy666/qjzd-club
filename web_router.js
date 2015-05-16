@@ -64,6 +64,7 @@ router.post('/user/set_star', auth.adminRequired, user.toggle_star); // 把某�
 router.post('/user/cancel_star', auth.adminRequired, user.toggle_star);  // 取消某用户的达人身份
 router.post('/user/:name/block', auth.adminRequired, user.block);  // 禁言某用户
 router.post('/user/:name/delete_all', auth.adminRequired, user.deleteAll);  // 删除某用户所有发言
+router.post('/crop_portrait', auth.userRequired, user.cropPortrait);
 
 // message controler
 router.get('/my/messages', auth.userRequired, message.index); // 用户个人的所有消息页

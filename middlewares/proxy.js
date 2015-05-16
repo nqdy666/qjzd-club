@@ -2,8 +2,11 @@ var urllib = require('url');
 var request = require('request');
 
 var ALLOW_HOSTNAME = [
-  'avatars.githubusercontent.com', 'www.gravatar.com',
-  'gravatar.com', 'www.google-analytics.com',
+  'avatars.githubusercontent.com',
+  'www.gravatar.com',
+  'gravatar.com',
+  'www.google-analytics.com',
+  'qiniu.com'
 ];
 exports.proxy = function (req, res, next) {
   var url = decodeURIComponent(req.query.url);
