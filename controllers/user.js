@@ -211,7 +211,7 @@ exports.cropPortrait = function(req, res, next) {
         return next(err);
       }
       req.session.user = user.toObject({virtual: true});
-      res.render('notify/notify', {success: "头像已修改, 刷新页面后, 就可以看到新头像哦", referer: referer});
+      return res.redirect('/setting?save=success');
     });
   }));
 };

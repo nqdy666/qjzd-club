@@ -18,6 +18,17 @@
   .pass-portrait-left {
     float: left;
   }
+
+  .loadingImg {
+    height: 32px;
+    width: 32px;
+    left: 50%;
+    top: 50%;
+    margin-left: -16px;
+    margin-top: -16px;
+    display: block;
+    position: relative;
+  }
   
   .pass-portrait-right {
     border-left: 1px solid #e5e5e5;
@@ -205,6 +216,9 @@
       <div class='pass-portrait-content'>
         <div class="pass-portrait-left">
           <div class='pass-portrait-crop'>
+            <span class="" id="loadingSpan">
+	          <img src="<%- staticFile('/public/images/loadingPortrait.gif') %>" class="loadingImg">
+            </span>
             <img id='portrait-image' class="portrait-image" src="<%= avatar_url %>">
           </div>
           <div class="pass-portrait-save">
@@ -280,6 +294,8 @@
   // END qrcode generate
 
   $(function () {
+    var $loadingSpan = $("#loadingSpan");
+    $loadingSpan.hide();
 
     var jcrop_api;
     var boundx;
@@ -288,7 +304,7 @@
     var $pcrop = $(".pass-portrait-crop");
     var pcrop_w = $pcrop.width();
     var pcrop_h = $pcrop.height();
-    var $jcrop_imag = $("#portrait-image");
+    var $jcrop_image = $("#portrait-image");
     var $bpcnt = $("#big-preview-container");
     var $bpimg = $('#big-preview-container img');
     var $spcnt = $("#small-preview-container");
@@ -304,17 +320,20 @@
     var $coordX = $("#coordX");
     var $coordY = $("#coordY");
 
-    $jcrop_imag.Jcrop({
-      bgOpacity: 0.6, //背景透明度
-      aspectRatio: 1, //长宽比, 1为正方形
-      boxWidth: pcrop_w, //画布宽
-      boxHeight: pcrop_h, //画布高
-      onChange: updatePreview,
-      onSelect: updatePreview
-    }, function () {
-      jcrop_api = this;
-      initJcropImage();
-    });
+    var createJcropImage = function() {
+      console.log(pcrop_w + ", " + pcrop_h);
+      $jcrop_image.Jcrop({
+        bgOpacity: 0.6, //背景透明度
+        aspectRatio: 1, //长宽比, 1为正方形
+        boxWidth: pcrop_w, //画布宽
+        boxHeight: pcrop_h, //画布高
+        onChange: updatePreview,
+        onSelect: updatePreview
+      }, function () {
+        jcrop_api = this;
+        initJcropImage();
+      });
+    };
 
     function initJcropImage() {
       var bounds = jcrop_api.getBounds();
@@ -363,6 +382,7 @@
         $coordY.val(Math.round(coord.y));
       }
     }
+    createJcropImage();
 
     var _csrf = $('[name=_csrf]').val();
 
@@ -380,51 +400,54 @@
         mimeTypes: 'image/*'
       }
     });
-    uploader.on('beforeFileQueued', function(file){
-      console.log('beforeFileQueued');
+
+    uploader.on('fileQueued', function(file){
+      jcrop_api.destroy();
+      $jcrop_image.hide();
+      $loadingSpan.show();
     });
 
     uploader.on('uploadProgress', function(file, percentage){
-      console.log(percentage);
     });
 
     uploader.on('uploadSuccess', function(file, res){
-      uploader.removeFile( file );
-      console.log('uploadSuccess ' + JSON.stringify(res));
       if(res.success){
-        console.log(JSON.stringify(res));
         $picUrl.val(res.url);
         $bpimg.attr("src", res.url);
         $spimg.attr("src", res.url);
-
+        $jcrop_image.attr("src", "");
+        createJcropImage();
         jcrop_api.setImage(res.url, function() {
           initJcropImage();
         });
       }
       else{
+        alert("上传图片出错");
       }
     });
 
     uploader.on('uploadComplete', function(file){
-      console.log('uploadComplete');
+      uploader.removeFile(file);
+      $loadingSpan.hide();
     });
 
     uploader.on('error', function(type){
+      $loadingSpan.hide();
       switch(type){
         case 'Q_EXCEED_SIZE_LIMIT':
         case 'F_EXCEED_SIZE':
-          console.log('文件太大了, 不能超过2M');
+          alert("文件太大了, 不能超过2M");
           break;
         case 'Q_TYPE_DENIED':
-          console.log('只能上传图片');
+          alert("只能上传图片");
           break;
         default:
-          console.log('发生未知错误');
+          alert("发生未知错误");
       }
     });
 
     uploader.on('uploadError', function(){
-      console.log('服务器走神了，上传失败');
+      alert("服务器走神了，上传失败");
     });
   });
 
