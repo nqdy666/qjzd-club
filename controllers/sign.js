@@ -62,18 +62,18 @@ exports.signup = function (req, res, next) {
 
     tools.bhash(pass, ep.done(function (passhash) {
       // create gravatar
-      var avatarUrl = User.makeGravatar();
-      User.newAndSave(loginname, loginname, passhash, email, avatarUrl, false, function (err) {
-        if (err) {
-          return next(err);
-        }
-        // 发送激活邮件
-        mail.sendActiveMail(email, utility.md5(email + passhash + config.session_secret), loginname);
-        res.render('sign/signup', {
-          success: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'
+      User.makeGravatar(function(avatarUrl) {
+        User.newAndSave(loginname, loginname, passhash, email, avatarUrl, false, function (err) {
+          if (err) {
+            return next(err);
+          }
+          // 发送激活邮件
+          mail.sendActiveMail(email, utility.md5(email + passhash + config.session_secret), loginname);
+          res.render('sign/signup', {
+            success: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'
+          });
         });
       });
-
     }));
   });
 };

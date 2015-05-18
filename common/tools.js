@@ -26,3 +26,9 @@ exports.bhash = function (str, callback) {
 exports.bcompare = function (str, hash, callback) {
   bcrypt.compare(str, hash, callback);
 };
+
+//获取某个区间的随机数字
+exports.random = function(min, max) {
+  return Math.floor(min + Math.random() * (max - min));
+};
+

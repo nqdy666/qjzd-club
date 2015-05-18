@@ -195,8 +195,12 @@ exports.cropPortrait = function(req, res, next) {
     return;
   }
 
+  var qnUrl = config.qn_access.domain || 'http://' + config.qn_access.bucket + '.qiniudn.com';
+  if (qnUrl[qnUrl.length - 1] !== '/') {
+    qnUrl += '/';
+  }
   //picUrl http://qjzd.qiniudn.com/FhdZ_8gdoQdDEBD8bGyWF8lJi9rd?crop, 得到FhdZ_8gdoQdDEBD8bGyWF8lJi9rd
-  var key = picUrl.replace("http://qjzd.qiniudn.com/", "");
+  var key = picUrl.replace(qnUrl, "");
   var index = key.indexOf("?");
   if (index !== -1) {
     key = key.substring(0, key.indexOf("?"));

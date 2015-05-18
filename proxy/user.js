@@ -2,6 +2,11 @@ var models = require('../models');
 var User = models.User;
 var utility = require('utility');
 var uuid = require('node-uuid');
+var store = require('../common/store');
+var fs = require('fs');
+var path = require('path');
+var tools = require("../common/tools");
+var eventproxy = require('eventproxy');
 
 /**
  * 根据用户名列表查找用户列表
@@ -104,11 +109,20 @@ exports.newAndSave = function (name, loginname, pass, email, avatar_url, active,
   user.save(callback);
 };
 
-var makeGravatar = function () {
-  return 'http://qjzd.qiniudn.com/portrait_' + Math.round(Math.random() * 10);
-};
-exports.makeGravatar = makeGravatar;
+var makeGravatar = function (callback) {
+  var filename = tools.random(1, 31) + '.png';
+  var filepath = path.join(__dirname, "../public/images/portraits/", filename);
+  var file = fs.createReadStream(filepath);
+  var avatarUrl = "/public/images/portraits/" + filename;
 
-exports.getGravatar = function (user) {
-  return user.avatar || makeGravatar();
+  store.upload(file, {filename: filename}, function (err, result) {
+    if (!err) {
+      avatarUrl = result.url;
+    }
+    if (typeof (callback) === 'function') {
+      callback(avatarUrl);
+    }
+  });
 };
+
+exports.makeGravatar = makeGravatar;
