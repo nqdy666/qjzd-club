@@ -33,9 +33,11 @@ var config = {
   google_tracker_id: '',
   // 默认的cnzz tracker ID，自有站点请修改
   cnzz_tracker_id: '',
+  //百度统计ID
+  baidu_tracker_id: '',
   //百度站内搜索ID, 自有站点请修改
   baidu_znsv_sid: '',
-  
+
   // mongodb 配置
   db: 'mongodb://127.0.0.1/node_club_dev',
 

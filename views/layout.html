@@ -154,6 +154,12 @@
 </div>
 <% } %>
 
+<% if (config.baidu_tracker_id) { %>
+<div style="display:none;">
+  <script src="//hm.baidu.com/hm.js?<%-config.baidu_tracker_id %>" language="JavaScript"></script>
+</div>
+<% } %>
+
 <% if (config.baidu_znsv_sid) {%>
 <script type="text/javascript">
   (function(){
