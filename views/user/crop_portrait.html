@@ -88,6 +88,10 @@
     padding: 3px 20px;
   }
 
+  #re_select_image .webuploader-pick {
+    padding: 3px 20px;
+  }
+
   .jcrop-holder {
     left: 50%;
     top: 50%;
@@ -97,7 +101,8 @@
   }
 </style>
 
-<div class='pass-portrait-content'>
+<div id="select_image" data-name='upload_file'>选择照片</div>
+<div class='pass-portrait-content hide' id='pass-portrait-content'>
   <div class="pass-portrait-left">
     <div class='pass-portrait-crop'>
             <span class="" id="loadingSpan">
@@ -114,7 +119,7 @@
         <input type="hidden" name="picUrl" id="picUrl" value="<%= avatar_url %>"/>
         <input type='hidden' name='_csrf' value='<%= csrf %>'/>
         <input id='save_image' type="submit" class="span-primary submit_btn" value='保存照片' data-loading-text="头像保存中.."/>
-        <div id="select_image" data-name='upload_file'>选择照片</div>
+        <div id="re_select_image" data-name='upload_file'>重新选择照片</div>
       </form>
     </div>
   </div>
@@ -174,6 +179,10 @@
     var $coordW = $("#coordW");
     var $coordX = $("#coordX");
     var $coordY = $("#coordY");
+
+    var $pContent = $("#pass-portrait-content");
+    var $selectImgBtn = $("#select_image");
+    var isReSelectImgBtnInit = false;
 
     var createJcropImage = function() {
       console.log(pcrop_w + ", " + pcrop_h);
@@ -260,6 +269,16 @@
       jcrop_api.destroy();
       $jcrop_image.hide();
       $loadingSpan.show();
+
+      $selectImgBtn.hide();
+      $pContent.removeClass("hide");
+
+      if (!isReSelectImgBtnInit) {
+        uploader.addButton({
+          id: '#re_select_image'
+        });
+        isReSelectImgBtnInit = true;
+      }
     });
 
     uploader.on('uploadProgress', function(file, percentage){
