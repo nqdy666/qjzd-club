@@ -135,7 +135,6 @@ exports.forumSitemap = function (req, res, next) {
         topics.forEach(function (topic) {
           var url = urlset.ele('url');
           url.ele('loc', 'http://' + config.host + '/topic/' + topic._id );
-          //console.log(JSON.stringify(topic));
           url.ele('lastmod', tools.formatDate(topic.update_at, 'YYYY-MM-DD'));
           url.ele('changefreq', 'weekly');
           url.ele('priority', 0.5);
@@ -162,7 +161,7 @@ exports.forumSitemap = function (req, res, next) {
 
         var sitemapData = urlset.end();
         // 缓存一天
-        //cache.set('forumSitmap', sitemapData, 3600 * 24);
+        cache.set('forumSitmap', sitemapData, 3600 * 24);
         ep.emit('forumSitmap', sitemapData);
       });
     }
