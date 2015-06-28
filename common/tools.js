@@ -7,12 +7,15 @@ moment.locale('zh-cn'); // 使用中文
 exports.formatDate = function (date, friendly) {
   date = moment(date);
 
-  if (friendly) {
-    return date.fromNow();
-  } else {
-    return date.format('YYYY-MM-DD HH:mm');
+  if (typeof (friendly) !== 'string') {
+    if (friendly) {
+      return date.fromNow();
+    } else {
+      return date.format('YYYY-MM-DD HH:mm');
+    }
   }
-
+  var formateStr = friendly;
+  return date.format(formateStr);
 };
 
 exports.validateId = function (str) {

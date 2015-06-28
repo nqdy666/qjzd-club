@@ -17,6 +17,7 @@ var cache        = require('../common/cache');
 var xmlbuilder   = require('xmlbuilder');
 var renderHelper = require('../common/render_helper');
 var _            = require('lodash');
+var tools = require('../common/tools');
 
 exports.index = function (req, res, next) {
   var page = parseInt(req.query.page, 10) || 1;
@@ -108,6 +109,64 @@ exports.index = function (req, res, next) {
         pageTitle: tabName && (tabName + '版块'),
       });
     });
+};
+
+exports.forumSitemap = function (req, res, next) {
+  var urlset = xmlbuilder.create('urlset', {
+    version: '1.0', encoding: 'UTF-8'
+  });
+
+  var ep = new eventproxy();
+  ep.fail(next);
+
+  ep.all('forumSitmap', function(sitemap) {
+    res.type('xml');
+    res.send(sitemap);
+  });
+
+  cache.get('forumSitmap', ep.done(function (sitemapData) {
+    if (sitemapData) {
+      ep.emit('forumSitmap', sitemapData);
+    } else {
+      Topic.getTopicsByQuery({deleted: false}, {limit: 500, sort: '-create_at'}, function (err, topics) {
+        if (err) {
+          return next(err);
+        }
+        topics.forEach(function (topic) {
+          var url = urlset.ele('url');
+          url.ele('loc', 'http://' + config.host + '/topic/' + topic._id );
+          //console.log(JSON.stringify(topic));
+          url.ele('lastmod', tools.formatDate(topic.update_at, 'YYYY-MM-DD'));
+          url.ele('changefreq', 'weekly');
+          url.ele('priority', 0.5);
+          var data = url.ele('data');
+          var thread = data.ele("thread");
+          thread.ele('threadUrl', 'http://' + config.host + '/topic/' + topic._id);
+          thread.ele('author', topic.author.name);
+          thread.ele('authorIcon', topic.author.avatar_url);
+          thread.ele('threadTitle', topic.title);
+          thread.ele('stickyLevel', topic.top? "3": "0");
+          thread.ele('isDigest', topic.good? "1": "0");
+          var post = thread.ele('post');
+          post.ele('postContent', topic.content);
+          post.ele('createdTime', tools.formatDate(topic.create_at, 'YYYY-MM-DDTHH:mm:ss'));
+          post.end();
+          thread.ele('replyCount', topic.reply_count);
+          thread.ele('viewCount', topic.visit_count);
+          thread.ele('lastReplyTime', tools.formatDate(topic.last_reply_at, 'YYYY-MM-DDTHH:mm:ss'));
+          thread.ele('favorCount', topic.collect_count);
+          thread.end();
+          data.end();
+          url.end();
+        });
+
+        var sitemapData = urlset.end();
+        // 缓存一天
+        //cache.set('forumSitmap', sitemapData, 3600 * 24);
+        ep.emit('forumSitmap', sitemapData);
+      });
+    }
+  }));
 };
 
 exports.sitemap = function (req, res, next) {

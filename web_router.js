@@ -31,6 +31,8 @@ var router           = express.Router();
 router.get('/', site.index);
 // sitemap
 router.get('/sitemap.xml', site.sitemap);
+// forum sitemap
+router.get('/forum_sitemap.xml', site.forumSitemap);
 // mobile app download
 router.get('/app/download', site.appDownload);
 
