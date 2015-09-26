@@ -69,17 +69,14 @@ exports.index = function (req, res, next) {
       });
       allUpCount = _.sortBy(allUpCount, Number).reverse();
 
-      return allUpCount[2] || 0;
+      var threshold = allUpCount[2] || 0;
+      if (threshold < 3) {
+        threshold = 3;
+      }
+      return threshold;
     })();
 
-    if (!req.session.user) {
-      ep.emit('topic', topic);
-    } else {
-      TopicCollect.getTopicCollect(req.session.user._id, topic._id, ep.done(function (doc) {
-        topic.in_collection = doc;
-        ep.emit('topic', topic);
-      }));
-    }
+    ep.emit('topic', topic);
 
     // get other_topics
     var options = { limit: 5, sort: '-last_reply_at'};
@@ -112,9 +109,7 @@ exports.create = function (req, res, next) {
 
 exports.put = function (req, res, next) {
   var title   = validator.trim(req.body.title);
-  title       = validator.escape(title);
   var tab     = validator.trim(req.body.tab);
-  tab         = validator.escape(tab);
   var content = validator.trim(req.body.t_content);
 
   // 得到所有的 tab, e.g. ['ask', 'share', ..]
@@ -207,9 +202,7 @@ exports.update = function (req, res, next) {
 
     if (topic.author_id.equals(req.session.user._id) || req.session.user.is_admin) {
       title   = validator.trim(title);
-      title   = validator.escape(title);
       tab     = validator.trim(tab);
-      tab     = validator.escape(tab);
       content = validator.trim(content);
 
       // 验证

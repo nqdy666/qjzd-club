@@ -67,8 +67,7 @@ var config = {
 
   // 邮箱配置
   mail_opts: {
-    host: 'smtp.126.com',
-    port: 25,
+    service: '126',
     auth: {
       user: 'club@126.com',
       pass: 'club'
@@ -91,8 +90,8 @@ var config = {
   // 是否允许直接注册（否则只能走 github 的方式）
   allow_sign_up: true,
 
-  // newrelic 是个用来监控网站性能的服务
-  newrelic_key: 'yourkey',
+  // oneapm 是个用来监控网站性能的服务
+  oneapm_key: '',
 
   // 下面两个配置都是文件上传的配置
 
@@ -101,7 +100,10 @@ var config = {
     accessKey: 'your access key',
     secretKey: 'your secret key',
     bucket: 'your bucket name',
-    domain: 'http://your qiniu domain'
+    domain: 'http://your qiniu domain',
+    // 如果vps在国外，请使用 http://up.qiniug.com/ ，这是七牛的国际节点
+    // 如果在国内，此项请留空
+    uploadURL: 'http://xxxxxxxx',
   },
 
   // 文件上传配置

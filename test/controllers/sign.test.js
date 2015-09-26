@@ -130,7 +130,7 @@ describe('test/controllers/sign.test.js', function () {
       request.post('/signout')
       .set('Cookie', config.auth_cookie_name + ':something;')
       .expect(302, function (err, res) {
-        res.headers['set-cookie'].should.eql([ 'node_club=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT' ]);
+        res.headers['set-cookie'].should.eql([ 'nianqin_qjzd_club=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT' ]);
         done(err);
       });
     });
@@ -179,63 +179,5 @@ describe('test/controllers/sign.test.js', function () {
       });
     });
 
-    it('should update search pass', function (done) {
-      done = pedding(done, 2);
-      mm(mailService, 'sendMail', function (data) {
-        data.from.should.equal('Nodeclub <club@126.com>');
-        data.to.should.match(new RegExp(loginname));
-        data.subject.should.equal('Nodeclub社区密码重置');
-        data.html.should.match(new RegExp('<p>您好：' + loginname));
-        resetKey = data.html.match(/key=(.+?)&/)[1];
-        done();
-      });
-
-      request.post('/search_pass')
-      .send({
-        email: email
-      })
-      .expect(200, function (err, res) {
-        res.text.should.containEql('我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。');
-        done(err);
-      });
-    });
-
-    it('should 200 when get /reset_pass', function (done) {
-      request.get('/reset_pass')
-      .query({
-        key : resetKey,
-        name : loginname
-      })
-      .expect(200, function (err, res) {
-        res.text.should.containEql('重置密码');
-        done(err);
-      });
-    });
-
-    it('should 403 get /reset_pass when with wrong resetKey', function (done) {
-      request.get('/reset_pass')
-      .query({
-        key : 'wrong key',
-        name : loginname
-      })
-      .expect(403, function (err, res) {
-        res.text.should.containEql('信息有误，密码无法重置。');
-        done(err);
-      });
-    });
-
-    it('should update passwork', function (done) {
-      request.post('/reset_pass')
-      .send({
-        psw: 'jkljkljkl',
-        repsw: 'jkljkljkl',
-        key: resetKey,
-        name: loginname,
-      })
-      .expect(200, function (err, res) {
-        res.text.should.containEql('你的密码已重置。');
-        done(err);
-      })
-    })
   });
 });

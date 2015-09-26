@@ -8,8 +8,8 @@
 
 var config = require('./config');
 
-if (!config.debug) {
-  require('newrelic');
+if (!config.debug && config.oneapm_key) {
+  require('oneapm');
 }
 
 require('colors');
@@ -25,7 +25,7 @@ var githubStrategyMiddleware = require('./middlewares/github_strategy');
 var webRouter = require('./web_router');
 var apiRouterV1 = require('./api_router_v1');
 var auth = require('./middlewares/auth');
-var errorPageMiddleware = require("./middlewares/error_page");
+var errorPageMiddleware = require('./middlewares/error_page');
 var proxyMiddleware = require('./middlewares/proxy');
 var RedisStore = require('connect-redis')(session);
 var _ = require('lodash');
@@ -37,7 +37,7 @@ var errorhandler = require('errorhandler');
 var cors = require('cors');
 var requestLog = require('./middlewares/request_log');
 var renderMiddleware = require('./middlewares/render');
-var logger = require("./common/logger");
+var logger = require('./common/logger');
 var helmet = require('helmet');
 
 
@@ -107,7 +107,7 @@ app.use(auth.blockUser());
 
 if (!config.debug) {
   app.use(function (req, res, next) {
-    if (req.path.indexOf('/api') === -1) {
+    if (req.path === '/api' || req.path.indexOf('/api') === -1) {
       csurf()(req, res, next);
       return;
     }
@@ -165,10 +165,10 @@ if (config.debug) {
 }
 
 app.listen(config.port, function () {
-  logger.log("QjzdClub listening on port %d", config.port);
-  logger.log("God bless love....");
-  logger.log("You can debug your app with http://" + config.hostname + ':' + config.port);
-  logger.log("");
+  logger.log('QjzdClub listening on port', config.port);
+  logger.log('God bless love....');
+  logger.log('You can debug your app with http://' + config.hostname + ':' + config.port);
+  logger.log('');
 });
 
 
