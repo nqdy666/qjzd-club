@@ -188,16 +188,11 @@ exports.cropPortrait = function(req, res, next) {
     return;
   }
 
-  if (picUrl.indexOf("qiniudn.com") === -1) {
-    res.render('notify/notify', {success: "抱歉, 暂不支持非七牛的头像修改", referer: referer});
-    return;
-  }
-
-  var qnUrl = config.qn_access.domain || 'http://' + config.qn_access.bucket + '.qiniudn.com';
+  var qnUrl = config.qn_access.domain;
   if (qnUrl[qnUrl.length - 1] !== '/') {
     qnUrl += '/';
   }
-  //picUrl http://qjzd.qiniudn.com/FhdZ_8gdoQdDEBD8bGyWF8lJi9rd?crop, 得到FhdZ_8gdoQdDEBD8bGyWF8lJi9rd
+  //picUrl config.qn_access.domain + /FhdZ_8gdoQdDEBD8bGyWF8lJi9rd?crop, 得到FhdZ_8gdoQdDEBD8bGyWF8lJi9rd
   var key = picUrl.replace(qnUrl, "");
   var index = key.indexOf("?");
   if (index !== -1) {
