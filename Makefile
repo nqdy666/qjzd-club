@@ -1,5 +1,5 @@
 TESTS = $(shell find test -type f -name "*.test.js")
-TEST_TIMEOUT = 5000
+TEST_TIMEOUT = 10000
 MOCHA_REPORTER = spec
 # NPM_REGISTRY = "--registry=http://registry.npm.taobao.org"
 NPM_REGISTRY = ""
@@ -38,7 +38,7 @@ test-cov cov: install pretest
 		$(TESTS)
 
 build:
-	@./node_modules/loader/bin/build views .
+	@./node_modules/loader-builder/bin/builder views .
 
 run:
 	@node app.js

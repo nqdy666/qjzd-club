@@ -31,16 +31,6 @@ describe('test/controllers/sign.test.js', function () {
       });
     });
 
-    //it('should redirect to github oauth page', function (done) {
-    //  mm(config.GITHUB_OAUTH, 'clientID', 'clientID chenged');
-    //  app.get('/signup_github', configMiddleware.github, passport.authenticate('github'));
-    //  request.get('/signup_github')
-    //  .expect(302, function (err, res) {
-    //    //res.headers.location.should.containEql('https://github.com/login/oauth/authorize?');
-    //    done(err);
-    //  });
-    //});
-
     it('should sign up a user', function (done) {
       done = pedding(done, 2);
 
@@ -60,7 +50,7 @@ describe('test/controllers/sign.test.js', function () {
           res.text.should.containEql('欢迎加入');
           UserProxy.getUserByLoginName(loginname, function (err, user) {
             should.not.exists(err);
-            user.should.ok;
+            user.should.ok();
             done();
           });
         });

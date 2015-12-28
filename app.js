@@ -15,6 +15,7 @@ if (!config.debug && config.oneapm_key) {
 require('colors');
 var path = require('path');
 var Loader = require('loader');
+var LoaderConnect = require('loader-connect')
 var express = require('express');
 var session = require('express-session');
 var passport = require('passport');
@@ -39,6 +40,7 @@ var requestLog = require('./middlewares/request_log');
 var renderMiddleware = require('./middlewares/render');
 var logger = require('./common/logger');
 var helmet = require('helmet');
+var bytes = require('bytes')
 
 
 // 静态文件目录
@@ -50,7 +52,7 @@ if (config.mini_assets) {
   try {
     assets = require('./assets.json');
   } catch (e) {
-    console.log('You must execute `make build` before start app when mini_assets is true.');
+    logger.error('You must execute `make build` before start app when mini_assets is true.');
     throw e;
   }
 }
@@ -76,7 +78,9 @@ if (config.debug) {
 }
 
 // 静态资源
-app.use(Loader.less(__dirname));
+if (config.debug) {
+  app.use(LoaderConnect.less(__dirname)); // 测试环境用，编译 .less on the fly
+}
 app.use('/public', express.static(staticDir));
 app.use('/agent', proxyMiddleware.proxy);
 
@@ -100,6 +104,15 @@ app.use(session({
 
 // oauth 中间件
 app.use(passport.initialize());
+
+// github oauth
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+passport.use(new GitHubStrategy(config.GITHUB_OAUTH, githubStrategyMiddleware));
 
 // custom middleware
 app.use(auth.authUser);
@@ -135,18 +148,9 @@ app.use(function (req, res, next) {
   next();
 });
 
-// github oauth
-passport.serializeUser(function (user, done) {
-  done(null, user);
-});
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-passport.use(new GitHubStrategy(config.GITHUB_OAUTH, githubStrategyMiddleware));
-
 app.use(busboy({
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB
+    fileSize: bytes(config.file_limit)
   }
 }));
 
@@ -159,17 +163,18 @@ if (config.debug) {
   app.use(errorhandler());
 } else {
   app.use(function (err, req, res, next) {
-    console.error('server 500 error:', err);
+    logger.error(err);
     return res.status(500).send('500 status');
   });
 }
 
-app.listen(config.port, function () {
-  logger.log('QjzdClub listening on port', config.port);
-  logger.log('God bless love....');
-  logger.log('You can debug your app with http://' + config.hostname + ':' + config.port);
-  logger.log('');
-});
-
+if (!module.parent) {
+  app.listen(config.port, function () {
+    logger.info('QjzdClub listening on port', config.port);
+    logger.info('God bless love....');
+    logger.info('You can debug your app with http://' + config.hostname + ':' + config.port);
+    logger.info('');
+  });
+}
 
 module.exports = app;

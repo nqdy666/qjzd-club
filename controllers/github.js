@@ -8,6 +8,7 @@ var validator      = require('validator');
 
 exports.callback = function (req, res, next) {
   var profile = req.user;
+  var email = profile.emails && profile.emails[0] && profile.emails[0].value;
   User.findOne({githubId: profile.id}, function (err, user) {
     if (err) {
       return next(err);
@@ -19,12 +20,22 @@ exports.callback = function (req, res, next) {
       user.githubAccessToken = profile.accessToken;
       // user.loginname = profile.username;
       user.avatar = profile._json.avatar_url;
-      if (profile.emails[0].value) {
-        user.email = profile.emails[0].value;
-      }
+      user.email = email || user.email;
+
 
       user.save(function (err) {
         if (err) {
+          // 根据 err.err 的错误信息决定如何回应用户，这个地方写得很难看
+          if (err.message.indexOf('duplicate key error') !== -1) {
+            if (err.message.indexOf('email') !== -1) {
+              return res.status(500)
+                .render('sign/no_github_email');
+            }
+            if (err.message.indexOf('loginname') !== -1) {
+              return res.status(500)
+                .send('您 GitHub 账号的用户名与之前在 CNodejs 注册的用户名重复了');
+            }
+          }
           return next(err);
         }
         authMiddleWare.gen_session(user, res);
@@ -44,6 +55,7 @@ exports.new = function (req, res, next) {
 
 exports.create = function (req, res, next) {
   var profile = req.session.profile;
+
   var isnew = req.body.isnew;
   var loginname = validator.trim(req.body.name).toLowerCase();
   var password = validator.trim(req.body.pass);
@@ -54,11 +66,13 @@ exports.create = function (req, res, next) {
     return res.redirect('/signin');
   }
   delete req.session.profile;
+
+  var email = profile.emails && profile.emails[0] && profile.emails[0].value;
   if (isnew) { // 注册新账号
     var user = new User({
       loginname: profile.username,
       pass: profile.accessToken,
-      email: profile.emails[0].value,
+      email: email,
       avatar: profile._json.avatar_url,
       githubId: profile.id,
       githubUsername: profile.username,

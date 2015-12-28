@@ -54,15 +54,6 @@ UserSchema.virtual('avatar_url').get(function () {
     url += '&s=120';
   }
 
-  //如果是七牛的地址, 则限制大小
-  if (url.indexOf('qiniudn.com') !== -1) {
-    if (url.indexOf('imageMogr') !== -1) {
-      url += '/thumbnail/48x48!';
-    } else {
-      url += '?imageMogr/thumbnail/48x48!';
-    }
-  }
-
   return url;
 });
 

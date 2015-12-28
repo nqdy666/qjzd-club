@@ -120,13 +120,9 @@ exports.setting = function (req, res, next) {
   var action = req.body.action;
   if (action === 'change_setting') {
     var url = validator.trim(req.body.url);
-    url = validator.escape(url);
     var location = validator.trim(req.body.location);
-    location = validator.escape(location);
     var weibo = validator.trim(req.body.weibo);
-    weibo = validator.escape(weibo);
     var signature = validator.trim(req.body.signature);
-    signature = validator.escape(signature);
 
     User.getUserById(req.session.user._id, ep.done(function (user) {
       user.url = url;
@@ -188,7 +184,7 @@ exports.cropPortrait = function(req, res, next) {
     return;
   }
 
-  var qnUrl = config.qn_access.domain;
+  var qnUrl = config.qn_access.origin;
   if (qnUrl[qnUrl.length - 1] !== '/') {
     qnUrl += '/';
   }
