@@ -162,18 +162,21 @@
 
 <% if (config.baidu_znsv_sid) {%>
 <script type="text/javascript">
-  (function(){
-    document.write(unescape('%3Cdiv id="bdcs"%3E%3C/div%3E'));
-    var bdcs = document.createElement('script');
-    bdcs.type = 'text/javascript';
-    bdcs.async = true;
-    bdcs.src = 'http://znsv.baidu.com/customer_search/api/js?sid=<%-config.baidu_znsv_sid%>' + '&plate_url=' + encodeURIComponent('qjzd.net') + '&t=' + Math.ceil(new Date()/3600000);
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(bdcs, s);
-  })();
-  $(function() {
-    $("#bdcsMain").parent().removeAttr("action");
-  });
+  var ishttps = 'https:' === document.location.protocol ? true: false;
+  if (!ishttps) {
+    (function(){
+      document.write(unescape('%3Cdiv id="bdcs"%3E%3C/div%3E'));
+      var bdcs = document.createElement('script');
+      bdcs.type = 'text/javascript';
+      bdcs.async = true;
+      bdcs.src = 'http://znsv.baidu.com/customer_search/api/js?sid=<%-config.baidu_znsv_sid%>' + '&plate_url=' + encodeURIComponent('qjzd.net') + '&t=' + Math.ceil(new Date()/3600000);
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(bdcs, s);
+    })();
+    $(function() {
+      $("#bdcsMain").parent().removeAttr("action");
+    });
+  }
 </script>
 <% } %>
 
