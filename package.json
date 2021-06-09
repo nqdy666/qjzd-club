@@ -66,6 +66,10 @@
   },
   "scripts": {
     "build": "node ./node_modules/loader-builder/bin/builder views .",
+    "start": "node app.js",
+    "pm2start": "pm2 start npm -i 1 --name qjzd-club --max-memory-restart 500M -- run start",
+    "pm2stop": "pm2 stop qjzd-club",
+    "pm2restart": "pm2 restart qjzd-club",
     "test": "make test",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect"
