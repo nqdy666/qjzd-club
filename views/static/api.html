@@ -10,6 +10,9 @@
       <div class="topic_content">
         <%- markdown(multiline(function () {
 /*
+
+以下 api 路径均以 **https://cnodejs.org/api/v1** 为前缀
+
 ### 主题
 
 #### get /topics 主题首页
@@ -28,14 +31,31 @@
 接收 get 参数
 
 * mdrender `String` 当为 `false` 时，不渲染。默认为 `true`，渲染出现的所有 markdown 格式文本。
+* accesstoken `String` 当需要知道一个主题是否被特定用户收藏以及对应评论是否被特定用户点赞时，才需要带此参数。会影响返回值中的 `is_collect` 以及 `replies` 列表中的 `is_uped` 值。
 
 示例：[/api/v1/topic/5433d5e4e737cbe96dcef312](/api/v1/topic/5433d5e4e737cbe96dcef312)
-co
+
 #### post /topics 新建主题
 
 接收 post 参数
 
 * accesstoken `String` 用户的 accessToken
+* title `String` 标题
+* tab `String` 目前有 `ask` `share` `job` `dev`。开发新客户端的同学，请务必将你们的测试帖发在 `dev` 专区，以免污染日常的版面，否则会进行封号一周处理。
+* content `String` 主体内容
+
+返回值示例
+
+```js
+{success: true, topic_id: '5433d5e4e737cbe96dcef312'}
+```
+
+#### post /topics/update 编辑主题
+
+接收 post 参数
+
+* accesstoken `String` 用户的 accessToken
+* topic_id `String` 主题id
 * title `String` 标题
 * tab `String` 目前有 `ask` `share` `job`
 * content `String` 主体内容
@@ -45,6 +65,39 @@ co
 ```js
 {success: true, topic_id: '5433d5e4e737cbe96dcef312'}
 ```
+
+
+### 主题收藏
+
+#### post /topic_collect/collect 收藏主题
+
+接收 post 参数
+
+* accesstoken `String` 用户的 accessToken
+* topic_id `String` 主题的id
+
+返回值示例
+
+```js
+{"success": true}
+```
+
+#### post /topic_collect/de_collect 取消主题
+
+接收 post 参数
+
+* accesstoken `String` 用户的 accessToken
+* topic_id `String` 主题的id
+
+返回值示例
+
+```js
+{success: true}
+```
+#### get /topic_collect/:loginname 用户所收藏的主题
+
+示例：[/api/v1/topic_collect/alsotang](/api/v1/topic_collect/alsotang)
+
 
 ### 评论
 
@@ -93,7 +146,7 @@ co
 返回值示例
 
 ```js
-{success: true, loginname: req.user.loginname}
+{success: true, loginname: req.user.loginname, id: req.user.id, avatar_url: req.user.avatar_url}
 ```
 
 ### 消息通知
@@ -163,6 +216,26 @@ co
 { success: true,
   marked_msgs: [ { id: '544ce385aeaeb5931556c6f9' } ] }
 ```
+
+
+#### post /message/mark_one/:msg_id 标记单个消息为已读
+
+请求示例：[/message/mark_one/58ec7d39da8344a81eee0c14](/message/mark_one/58ec7d39da8344a81eee0c14)
+
+接收 post 参数
+
+* accesstoken `String`
+
+返回值示例
+
+```js
+{
+  success: true,
+  marked_msg_id: "58ec7d39da8344a81eee0c14"
+}
+```
+
+
 
 ### 知识点
 

@@ -45,6 +45,7 @@ var config = {
   redis_host: '127.0.0.1',
   redis_port: 6379,
   redis_db: 0,
+  redis_password: '',
 
   session_secret: 'node_club_secret', // 务必修改
   auth_cookie_name: 'node_club',
@@ -65,6 +66,8 @@ var config = {
     max_rss_items: 50
   },
 
+  log_dir: path.join(__dirname, 'logs'),
+
   // 邮箱配置
   mail_opts: {
     host: 'smtp.126.com',
@@ -72,7 +75,8 @@ var config = {
     auth: {
       user: 'club@126.com',
       pass: 'club'
-    }
+    },
+    ignoreTLS: true,
   },
 
   //weibo app key
@@ -132,6 +136,7 @@ var config = {
 
   create_post_per_day: 1000, // 每个用户一天可以发的主题数
   create_reply_per_day: 1000, // 每个用户一天可以发的评论数
+  create_user_per_ip: 1000, // 每个 ip 每天可以注册账号的次数
   visit_per_day: 1000, // 每个 ip 每天能访问的次数
 };
 

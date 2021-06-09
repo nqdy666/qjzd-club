@@ -19,8 +19,11 @@ exports.index = function (req, res, next) {
     if (!config.debug && rss) {
       res.send(rss);
     } else {
-      var opt = { limit: config.rss.max_rss_items, sort: '-create_at'};
-      Topic.getTopicsByQuery({}, opt, function (err, topics) {
+      var opt = {
+        limit: config.rss.max_rss_items,
+        sort: '-create_at',
+      };
+      Topic.getTopicsByQuery({tab: {$nin: ['dev']}}, opt, function (err, topics) {
         if (err) {
           return next(err);
         }
@@ -47,10 +50,14 @@ exports.index = function (req, res, next) {
         });
 
         var rssContent = convert('rss', rss_obj);
-
+        rssContent = utf8ForXml(rssContent)
         cache.set('rss', rssContent, 60 * 5); // 五分钟
         res.send(rssContent);
       });
     }
   }));
 };
+
+function utf8ForXml(inputStr) {
+  return inputStr.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, '');
+}

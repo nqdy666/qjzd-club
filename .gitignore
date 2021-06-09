@@ -16,6 +16,9 @@ assets.json
 # Ignore Windows desktop setting file
 desktop.ini
 
+# Ignore Redis snapshot
+dump.rdb
+
 *.log
 
 .idea
@@ -24,3 +27,5 @@ public/upload/*
 *.sublime-project
 *.sublime-workspace
 *.swp
+
+package-lock.json

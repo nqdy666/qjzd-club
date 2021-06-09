@@ -32,7 +32,7 @@ exports.getUsersByNames = function (names, callback) {
  * @param {Function} callback 回调函数
  */
 exports.getUserByLoginName = function (loginName, callback) {
-  User.findOne({'loginname': loginName}, callback);
+  User.findOne({'loginname': new RegExp('^'+loginName+'$', "i")}, callback);
 };
 
 /**
@@ -128,5 +128,8 @@ var makeGravatar = function (callback) {
     }
   });
 };
-
 exports.makeGravatar = makeGravatar;
+
+exports.getGravatar = function (user) {
+  return user.avatar || makeGravatar(user);
+};

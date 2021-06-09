@@ -13,6 +13,7 @@ var validator    = require('validator');
 var utility      = require('utility');
 var _            = require('lodash');
 var store = require('../common/store');
+var uuid = require('node-uuid')
 
 exports.index = function (req, res, next) {
   var user_name = req.params.name;
@@ -56,15 +57,20 @@ exports.index = function (req, res, next) {
 
     Reply.getRepliesByAuthorId(user._id, {limit: 20, sort: '-create_at'},
       proxy.done(function (replies) {
-        var topic_ids = [];
-        for (var i = 0; i < replies.length; i++) {
-          if (topic_ids.indexOf(replies[i].topic_id.toString()) < 0) {
-            topic_ids.push(replies[i].topic_id.toString());
-          }
-        }
+
+        var topic_ids = replies.map(function (reply) {
+          return reply.topic_id.toString()
+        })
+        topic_ids = _.uniq(topic_ids).slice(0, 5); //  只显示最近5条
+
         var query = {_id: {'$in': topic_ids}};
-        var opt = {limit: 5, sort: '-create_at'};
-        Topic.getTopicsByQuery(query, opt, proxy.done('recent_replies'));
+        var opt = {};
+        Topic.getTopicsByQuery(query, opt, proxy.done('recent_replies', function (recent_replies) {
+          recent_replies = _.sortBy(recent_replies, function (topic) {
+            return topic_ids.indexOf(topic._id.toString())
+          })
+          return recent_replies;
+        }));
       }));
   });
 };
@@ -106,7 +112,6 @@ exports.setting = function (req, res, next) {
       signature: data.signature,
       weibo: data.weibo,
       accessToken: data.accessToken,
-      avatar_url: data.avatar_url
     };
     if (isSuccess) {
       data2.success = msg;
@@ -230,15 +235,15 @@ exports.toggleStar = function (req, res, next) {
 
 exports.listCollectedTopics = function (req, res, next) {
   var name = req.params.name;
+  var page = Number(req.query.page) || 1;
+  var limit = config.list_topic_count;
+
   User.getUserByLoginName(name, function (err, user) {
     if (err || !user) {
       return next(err);
     }
-
-    var page = Number(req.query.page) || 1;
-    var limit = config.list_topic_count;
-
-    var render = function (topics, pages) {
+    var pages = Math.ceil(user.collect_topic_count/limit);
+    var render = function (topics) {
       res.render('user/collect_topics', {
         topics: topics,
         current_page: page,
@@ -247,24 +252,25 @@ exports.listCollectedTopics = function (req, res, next) {
       });
     };
 
-    var proxy = EventProxy.create('topics', 'pages', render);
+    var proxy = EventProxy.create('topics', render);
     proxy.fail(next);
 
-    TopicCollect.getTopicCollectsByUserId(user._id, proxy.done(function (docs) {
-      var ids = [];
-      for (var i = 0; i < docs.length; i++) {
-        ids.push(docs[i].topic_id);
-      }
+    var opt = {
+      skip: (page - 1) * limit,
+      limit: limit,
+    };
+
+    TopicCollect.getTopicCollectsByUserId(user._id, opt, proxy.done(function (docs) {
+      var ids = docs.map(function (doc) {
+        return String(doc.topic_id)
+      })
       var query = { _id: { '$in': ids } };
-      var opt = {
-        skip: (page - 1) * limit,
-        limit: limit,
-        sort: '-create_at'
-      };
-      Topic.getTopicsByQuery(query, opt, proxy.done('topics'));
-      Topic.getCountByQuery(query, proxy.done(function (all_topics_count) {
-        var pages = Math.ceil(all_topics_count / limit);
-        proxy.emit('pages', pages);
+
+      Topic.getTopicsByQuery(query, {}, proxy.done('topics', function (topics) {
+        topics = _.sortBy(topics, function (topic) {
+          return ids.indexOf(String(topic._id))
+        })
+        return topics
       }));
     }));
   });
@@ -346,11 +352,17 @@ exports.listReplies = function (req, res, next) {
     Reply.getRepliesByAuthorId(user._id, opt, proxy.done(function (replies) {
       // 获取所有有评论的主题
       var topic_ids = replies.map(function (reply) {
-        return reply.topic_id;
+        return reply.topic_id.toString();
       });
       topic_ids = _.uniq(topic_ids);
+
       var query = {'_id': {'$in': topic_ids}};
-      Topic.getTopicsByQuery(query, {}, proxy.done('topics'));
+      Topic.getTopicsByQuery(query, {}, proxy.done('topics', function (topics) {
+        topics = _.sortBy(topics, function (topic) {
+          return topic_ids.indexOf(topic._id.toString())
+        })
+        return topics;
+      }));
     }));
 
     Reply.getCountByAuthorId(user._id, proxy.done('pages', function (count) {
@@ -404,10 +416,24 @@ exports.deleteAll = function (req, res, next) {
         res.json({status: 'success'});
       });
     // 删除主题
-    TopicModel.update({author_id: user._id}, {$set: {deleted: true}}, {multi: true}, ep.done('del_topics'));
+    TopicModel.updateMany({author_id: user._id}, {$set: {deleted: true}}, ep.done('del_topics'));
     // 删除评论
-    ReplyModel.update({author_id: user._id}, {$set: {deleted: true}}, {multi: true}, ep.done('del_replys'));
+    ReplyModel.updateMany({author_id: user._id}, {$set: {deleted: true}}, ep.done('del_replys'));
     // 点赞数也全部干掉
-    ReplyModel.update({}, {$pull: {'ups': user._id}}, {multi: true}, ep.done('del_ups'));
+    ReplyModel.updateMany({}, {$pull: {'ups': user._id}}, ep.done('del_ups'));
+  }));
+};
+
+exports.refreshToken = function (req, res, next) {
+  var user_id = req.session.user._id;
+
+  var ep = EventProxy.create();
+  ep.fail(next);
+
+   User.getUserById(user_id, ep.done(function (user) {
+    user.accessToken = uuid.v4();
+    user.save(ep.done(function () {
+      res.json({status: 'success', accessToken: user.accessToken});
+    }));
   }));
 };

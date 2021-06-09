@@ -10,4 +10,6 @@ var TopicCollectSchema = new Schema({
 });
 
 TopicCollectSchema.plugin(BaseModel);
+TopicCollectSchema.index({user_id: 1, topic_id: 1}, {unique: true});
+
 mongoose.model('TopicCollect', TopicCollectSchema);

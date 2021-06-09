@@ -12,7 +12,7 @@ describe('test/middlewares/limit.test.js', function () {
 
   before(function () {
     app.get('/test_peripperday',
-      limitMiddleware.peripperday(visitor, 3), function (req, res) {
+      limitMiddleware.peripperday(visitor, 3, {showJson: true}), function (req, res) {
         res.send('hello');
       });
 
@@ -20,9 +20,9 @@ describe('test/middlewares/limit.test.js', function () {
   });
   describe('#peripperday', function () {
     it('should visit', function (done) {
-      supertest.get('/test_peripperday').end(function () {
-        supertest.get('/test_peripperday').end(function () {
-          supertest.get('/test_peripperday').end(function (err, res) {
+      supertest.get('/test_peripperday').set('x-real-ip', '127.0.0.1').end(function () {
+        supertest.get('/test_peripperday').set('x-real-ip', '127.0.0.1').end(function () {
+          supertest.get('/test_peripperday').set('x-real-ip', '127.0.0.1').end(function (err, res) {
             res.text.should.eql('hello');
             done();
           });
@@ -31,8 +31,10 @@ describe('test/middlewares/limit.test.js', function () {
     });
     it('should not visit', function (done) {
       supertest.get('/test_peripperday')
+        .set('x-real-ip', '127.0.0.1')
         .end(function (err, res) {
-          res.text.should.eql('ratelimit forbidden. limit is 3 per day.');
+          res.status.should.equal(403);
+          res.body.success.should.false();
           done(err);
         });
     });

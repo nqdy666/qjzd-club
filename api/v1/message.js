@@ -12,6 +12,7 @@ var index = function (req, res, next) {
 
   ep.all('has_read_messages', 'hasnot_read_messages', function (has_read_messages, hasnot_read_messages) {
     res.send({
+      success: true,
       data: {
         has_read_messages: has_read_messages,
         hasnot_read_messages: hasnot_read_messages
@@ -34,7 +35,7 @@ var index = function (req, res, next) {
           if (mdrender) {
             doc.reply.content = renderHelper.markdown(at.linkUsers(doc.reply.content));
           }
-          doc        = _.pick(doc, ['id', 'type', 'has_read', 'author', 'topic', 'reply']);
+          doc        = _.pick(doc, ['id', 'type', 'has_read', 'author', 'topic', 'reply', 'create_at']);
 
           return doc;
         });
@@ -72,12 +73,32 @@ var markAll = function (req, res, next) {
     });
     res.send({
       success: true,
-      marked_msgs: unread,
+      marked_msgs: unread
     });
   });
 };
 
 exports.markAll = markAll;
+
+
+var markOne = function (req, res, next) {
+  var msg_id = req.params.msg_id;
+  var ep = new eventproxy();
+  ep.fail(next);
+  Message.updateOneMessageToRead(msg_id, ep.done('marked_result', function (result) {
+    return result;
+  }));
+
+  ep.all('marked_result', function (result) {
+    res.send({
+      success: true,
+      marked_msg_id: msg_id
+    });
+  });
+};
+
+exports.markOne = markOne;
+
 
 var count = function (req, res, next) {
   var userId = req.user.id;
@@ -86,7 +107,7 @@ var count = function (req, res, next) {
   ep.fail(next);
 
   Message.getMessagesCount(userId, ep.done(function (count) {
-    res.send({data: count});
+    res.send({success: true, data: count});
   }));
 };
 

@@ -72,7 +72,7 @@
   * limit the with of message links to prevent line breaks
   * 修复文字过长没有换行的问题
 
-0.3.5 / 2013-05-30 
+0.3.5 / 2013-05-30
 ==================
 
   * Update logo based on the new official one (@finian)
@@ -90,7 +90,7 @@
   * 增加邮件提示内容
   * read file sync package.json
 
-0.3.4 / 2013-05-27 
+0.3.4 / 2013-05-27
 ==================
 
   * user markd instead showdown, use ace (@fengmk2)
@@ -111,7 +111,7 @@
   * Add 0.10 for travis
   * fixed #107 update user links
 
-0.3.3 / 2013-03-11 
+0.3.3 / 2013-03-11
 ==================
 
   * Merge pull request #126 from cnodejs/updateSignFlow
@@ -179,7 +179,7 @@
   * Merge pull request #85 from dead-horse/master
   * 过滤url允许绝对路径
 
-0.3.2 / 2012-03-04 
+0.3.2 / 2012-03-04
 ==================
 
   * ensure IncomingForm.UPLOAD_DIR

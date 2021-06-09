@@ -13,23 +13,28 @@ var show = function (req, res, next) {
 
   UserProxy.getUserByLoginName(loginname, ep.done(function (user) {
     if (!user) {
-      return res.send({error_msg: 'user `' + loginname + '` is not exists'});
+      res.status(404);
+      return res.send({success: false, error_msg: '用户不存在'});
     }
     var query = {author_id: user._id};
-    var opt = {limit: 5, sort: '-create_at'};
+    var opt = {limit: 15, sort: '-create_at'};
     TopicProxy.getTopicsByQuery(query, opt, ep.done('recent_topics'));
 
     ReplyProxy.getRepliesByAuthorId(user._id, {limit: 20, sort: '-create_at'},
       ep.done(function (replies) {
-        var topic_ids = [];
-        for (var i = 0; i < replies.length; i++) {
-          if (topic_ids.indexOf(replies[i].topic_id.toString()) < 0) {
-            topic_ids.push(replies[i].topic_id.toString());
-          }
-        }
+        var topic_ids = replies.map(function (reply) {
+          return reply.topic_id.toString()
+        });
+        topic_ids = _.uniq(topic_ids).slice(0, 5); //  只显示最近5条
+
         var query = {_id: {'$in': topic_ids}};
-        var opt = {limit: 5, sort: '-create_at'};
-        TopicProxy.getTopicsByQuery(query, opt, ep.done('recent_replies'));
+        var opt = {};
+        TopicProxy.getTopicsByQuery(query, opt, ep.done('recent_replies', function (recent_replies) {
+          recent_replies = _.sortBy(recent_replies, function (topic) {
+            return topic_ids.indexOf(topic._id.toString())
+          });
+          return recent_replies;
+        }));
       }));
 
     ep.all('recent_topics', 'recent_replies',
@@ -49,7 +54,7 @@ var show = function (req, res, next) {
           return topic;
         });
 
-        res.send({data: user});
+        res.send({success: true, data: user});
       });
   }));
 };

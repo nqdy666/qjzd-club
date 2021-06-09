@@ -17,7 +17,7 @@ var cache        = require('../common/cache');
 var xmlbuilder   = require('xmlbuilder');
 var renderHelper = require('../common/render_helper');
 var _            = require('lodash');
-var tools = require('../common/tools');
+var moment = require('moment');
 
 exports.index = function (req, res, next) {
   var page = parseInt(req.query.page, 10) || 1;
@@ -29,12 +29,17 @@ exports.index = function (req, res, next) {
 
   // 取主题
   var query = {};
-  if (tab && tab !== 'all') {
+  if (!tab || tab === 'all') {
+    query.tab = {$nin: ['job', 'dev']}
+  } else {
     if (tab === 'good') {
       query.good = true;
     } else {
       query.tab = tab;
     }
+  }
+  if (!query.good) {
+    query.create_at = {$gte: moment().subtract(1, 'years').toDate()}
   }
 
   var limit = config.list_topic_count;
@@ -67,7 +72,7 @@ exports.index = function (req, res, next) {
       proxy.emit('no_reply_topics', no_reply_topics);
     } else {
       Topic.getTopicsByQuery(
-        { reply_count: 0, tab: {$ne: 'job'}},
+        { reply_count: 0, tab: {$nin: ['job', 'dev']}},
         { limit: 5, sort: '-create_at'},
         proxy.done('no_reply_topics', function (no_reply_topics) {
           cache.set('no_reply_topics', no_reply_topics, 60 * 1);

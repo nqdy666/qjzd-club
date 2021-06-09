@@ -56,6 +56,7 @@ body {
 #content .changes {
   font-size: 12px;
   color: #838383;
+  overflow: hidden;
 
   span:before {
     content: "•"
@@ -99,6 +100,11 @@ body {
   clear: both;
   position: relative;
   background: #D5D5D5;
+  &.fix-bottom{
+      position: fixed;
+      bottom: 0;
+      width:100%;
+  }
 }
 
 #footer_main {
@@ -547,6 +553,13 @@ a.user_avatar:hover {
   font-weight: bold;
 }
 
+.reply_by_author {
+  color: #fff;
+  background-color: #6ba44e;
+  padding: 2px;
+  font-size: 12px;
+}
+
 .reply_time {
   font-size: 11px;
 }
@@ -570,10 +583,14 @@ a.user_avatar:hover {
   float: right;
   margin-left: 20px;
   font-size: 15px;
-}
 
-.user_action a {
-  text-decoration: none;
+  a {
+    text-decoration: none;
+  }
+
+  .up-count {
+    color: gray;
+  }
 }
 
 .reply_content {
@@ -619,7 +636,7 @@ a.topic_title {
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
-  vertical-align: bottom;
+  vertical-align: middle;
   font-size: 16px;
   line-height: 30px;
 }
@@ -637,7 +654,7 @@ a.topic_title {
   white-space: nowrap;
 }
 
-.put_top {
+.put_top, .put_good {
   background: @node_green;
   padding: 2px 4px;
   border-radius: 3px;
@@ -646,17 +663,6 @@ a.topic_title {
   -o-border-radius: 3px;
   color: white;
   font-size: 12px;
-}
-
-.put_good {
-  background: @node_green;
-  padding: 1px 2px;
-  border-radius: 2px;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  -o-border-radius: 2px;
-  color: white;
-  font-size: 13px;
 }
 
 .star_name {
@@ -684,10 +690,6 @@ img.unread {
 .user_profile {
   margin-top: 20px;
   clear: left;
-}
-
-#collect_btn {
-
 }
 
 #backtotop {
@@ -736,6 +738,22 @@ img.unread {
   color: black;
   background-color: #fcfafa;
   padding: 4px 6px;
+}
+
+
+.markdown-text img {
+  cursor: pointer;
+}
+
+.markdown-text {
+  h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
+    font-size: inherit;
+    color: inherit;
+  }
+}
+
+.panel .markdown-text a {
+  color: #08c;
 }
 
 .preview {
@@ -811,7 +829,15 @@ textarea#title {
   padding: 4px 0px 0px 20px;
   width: 120px;
   padding: 3px 20px;
-  height: 28px;
+  height: 34px;
+  line-height: 34px;
+  text-shadow: none;
+  color: #cccccc;
+  font-weight: 700;
+
+  img {
+    vertical-align: initial;   
+  }
 }
 
 .navbar .navbar-search {
@@ -1261,4 +1287,33 @@ textarea.editor {
 
 .cnode-app-download {
   text-align: center;
+}
+
+// 图片预览
+#preview-modal {
+  // 左右两遍各预留 1%，因为一般屏幕比较宽，所以只留下了 1%
+  width: 98%;
+  margin-left: -49%;
+  top: 2%;
+  // 上面 2% 下面 2% 中间就剩下 96%
+  max-height: 96%;
+
+  text-align: center;
+  overflow-y: scroll;
+  display: none;
+
+  img {
+    // just for 增强好看度
+    box-shadow: 0 0 10px 5px grey;
+    cursor: pointer;
+  }
+}
+
+.about-friend-links img {
+  width: 250px;
+  height: 60px;
+}
+
+.sponsor_outlink:hover {
+  text-decoration: none;
 }
